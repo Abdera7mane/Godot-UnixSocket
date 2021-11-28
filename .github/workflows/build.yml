@@ -1,0 +1,88 @@
+name: Build CI
+
+on: [push, pull_request]
+
+jobs:
+  linux-debug:
+    name: Linux debug build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install SCons
+        run: |
+          python -m pip install scons
+          python --version
+          scons --version
+      - name: Build library
+        run: ./build_linux.sh debug
+      - name: Upload artificat
+      - uses: actions/upload-artifact@v2
+        with:
+          name: linux-debug-${{ github.sha }}
+          if-no-files-found: error
+          path: bin/
+
+  linux-release:
+    name: Linux release build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install SCons
+        run: |
+          python -m pip install scons
+          python --version
+          scons --version
+      - name: Build library
+        run: ./build_linux.sh release
+      - name: Upload artificat
+      - uses: actions/upload-artifact@v2
+        with:
+          name: linux-release-${{ github.sha }}
+          if-no-files-found: error
+          path: bin/
+
+  macos-debug:
+    name: MacOS debug build
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install SCons
+        run: |
+          python -m pip install scons
+          python --version
+          scons --version
+      - name: Build library
+        run: ./build_mac.sh debug
+      - name: Upload artificat
+      - uses: actions/upload-artifact@v2
+        with:
+          name: macos-debug-${{ github.sha }}
+          if-no-files-found: error
+          path: bin/
+
+  macos-release:
+    name: MacOS release build
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install SCons
+        run: |
+          brew install scons
+          python --version
+          scons --version
+      - name: Build library
+        run: ./build_mac.sh release
+      - name: Upload artificat
+      - uses: actions/upload-artifact@v2
+        with:
+          name: macos-release-${{ github.sha }}
+          if-no-files-found: error
+          path: bin/

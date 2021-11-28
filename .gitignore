@@ -1,0 +1,33 @@
+# SConstruct db
+*.dblite
+
+# Godot Serialisations
+api.json
+
+# Visual Studio Cache
+.vs/
+
+# VSCode Cache
+.vscode/
+
+# Mac stuff
+.DS_Store
+
+# Binaries
+bin/
+intermediate/
+build/
+*.dll
+*.obj
+*.so
+*.dylib
+*.pdb
+*.ilk
+*.exe
+*.64
+*.os
+*.out
+
+# Replit
+.replit
+.cquery
