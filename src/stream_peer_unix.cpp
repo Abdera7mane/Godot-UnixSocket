@@ -148,6 +148,7 @@ int StreamPeerUnix::get_socket_type(SocketType type) {
 		case SOCK_DGRAM: return ::SOCK_DGRAM;
 		case SOCK_SEQPACKET: return ::SOCK_SEQPACKET;
 	}
+	return ::SOCK_STREAM;
 }
 
 StreamPeerUnix::~StreamPeerUnix() {
