@@ -18,7 +18,7 @@ jobs:
       - name: Build library
         run: ./build_linux.sh debug
       - name: Upload artificat
-      - uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2
         with:
           name: linux-debug-${{ github.sha }}
           if-no-files-found: error
@@ -39,7 +39,7 @@ jobs:
       - name: Build library
         run: ./build_linux.sh release
       - name: Upload artificat
-      - uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2
         with:
           name: linux-release-${{ github.sha }}
           if-no-files-found: error
@@ -60,7 +60,7 @@ jobs:
       - name: Build library
         run: ./build_mac.sh debug
       - name: Upload artificat
-      - uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2
         with:
           name: macos-debug-${{ github.sha }}
           if-no-files-found: error
@@ -81,7 +81,7 @@ jobs:
       - name: Build library
         run: ./build_mac.sh release
       - name: Upload artificat
-      - uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2
         with:
           name: macos-release-${{ github.sha }}
           if-no-files-found: error
