@@ -54,7 +54,7 @@ jobs:
           submodules: recursive
       - name: Install SCons
         run: |
-          python -m pip install scons
+          brew install scons
           python --version
           scons --version
       - name: Build library
