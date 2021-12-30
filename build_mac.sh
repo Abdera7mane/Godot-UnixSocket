@@ -10,4 +10,4 @@ if [ ! -d bin ]; then
     mkdir bin
 fi
 
-scons platform=x11 target=$1
+scons platform=osx target=$1
