@@ -12,7 +12,7 @@ _global_script_classes=[ {
 "base": "StreamPeerGDNative",
 "class": "StreamPeerUnix",
 "language": "NativeScript",
-"path": "res://native/gdexample.gdns"
+"path": "res://addons/godot-unix-socket/unix-socket.gdns"
 } ]
 _global_script_class_icons={
 "StreamPeerUnix": ""
