@@ -129,9 +129,9 @@ int StreamPeerUnix::write(const uint8_t *p_data, const int p_bytes) {
 void StreamPeerUnix::set_type(const int type) {
 	ERR_FAIL_COND(is_open());
 	switch(type) {
-		case SOCK_STREAM:
-		case SOCK_DGRAM:
-		case SOCK_SEQPACKET:
+		case STREAM:
+		case DGRAM:
+		case SEQPACKET:
 			this->type = static_cast<SocketType>(type);
 			return;
 	}
@@ -142,17 +142,17 @@ int StreamPeerUnix::get_type() {
 	return type;
 }
 
-int StreamPeerUnix::get_socket_type(SocketType type) {
-	int value = ::SOCK_STREAM;
+int StreamPeerUnix::get_socket_type(const SocketType type) {
+	int value = SOCK_STREAM;
 	switch(type) {
-		case SOCK_STREAM:
-			value = ::SOCK_STREAM;
+		case STREAM:
+			value = SOCK_STREAM;
 			break;
-		case SOCK_DGRAM:
-			value = ::SOCK_DGRAM;
+		case DGRAM:
+			value = SOCK_DGRAM;
 			break;
-		case SOCK_SEQPACKET:
-			value = ::SOCK_SEQPACKET;
+		case SEQPACKET:
+			value = SOCK_SEQPACKET;
 			break;
 	}
 	return value;
@@ -167,11 +167,11 @@ void StreamPeerUnix::_register_methods() {
 		"type",
         &StreamPeerUnix::set_type,    
         &StreamPeerUnix::get_type,    
-        SocketType::SOCK_STREAM,
+        SocketType::STREAM,
         GODOT_METHOD_RPC_MODE_DISABLED, 
         GODOT_PROPERTY_USAGE_DEFAULT, 
         GODOT_PROPERTY_HINT_ENUM, 
-		"SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET"
+		"STREAM, DGRAM, SEQPACKET"
 	);
 	
 	register_method("open", &StreamPeerUnix::open);

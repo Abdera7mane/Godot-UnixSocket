@@ -20,9 +20,9 @@ class StreamPeerUnix : public StreamPeerGDNative {
 
 public:
 	enum SocketType {
-		SOCK_STREAM,
-		SOCK_DGRAM,
-		SOCK_SEQPACKET
+		STREAM,
+		DGRAM,
+		SEQPACKET
 	};
 
 protected:
@@ -44,7 +44,7 @@ protected:
 
 	struct sockaddr_un server_address;
 
-	int get_socket_type(SocketType type);
+	int get_socket_type(const SocketType type);
 
 
 public:
