@@ -12,7 +12,7 @@ opts.Add(EnumVariable('platform', "Compilation platform", '', ['', 'x11', 'linux
 opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 'x11', 'linux', 'osx']))
 opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
 opts.Add(PathVariable('target_path', 'The path where the lib is installed.', 'bin/'))
-opts.Add(PathVariable('target_name', 'The library name.', 'test', PathVariable.PathAccept))
+opts.Add(PathVariable('target_name', 'The library name.', 'unixsocket', PathVariable.PathAccept))
 
 # Local dependency paths, adapt them to your setup
 godot_headers_path = "godot-cpp/godot-headers/"
