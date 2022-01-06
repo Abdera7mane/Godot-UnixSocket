@@ -30,13 +30,16 @@ void StreamPeerUnix::_init() {
 }
 
 godot_error StreamPeerUnix::get_data(uint8_t *p_buffer, int p_bytes) {
+	ERR_FAIL_COND_V(!is_open(), GODOT_ERR_UNCONFIGURED);
 	godot_error error = GODOT_OK;
-	int recieved = 0;
-	while (error == GODOT_OK && recieved < p_bytes) {
-		int read;
-		error = get_partial_data(p_buffer, p_bytes - recieved, &read);
-		p_buffer += read;
-		recieved += read;
+	int result = recv(socketfd, p_buffer, p_bytes, MSG_WAITALL);
+	if (result < 0) {
+		error = GODOT_ERR_FILE_CANT_READ;
+	} else if (result == 0) {
+		close();
+		error = GODOT_ERR_FILE_EOF;
+	} else if (result != p_bytes) {
+		error = GODOT_ERR_INVALID_PARAMETER;
 	}
 	return error;
 }
@@ -44,7 +47,7 @@ godot_error StreamPeerUnix::get_data(uint8_t *p_buffer, int p_bytes) {
 godot_error StreamPeerUnix::get_partial_data(uint8_t *p_buffer, int p_bytes, int *r_received) {
 	*r_received = 0;
 	ERR_FAIL_COND_V(!is_open(), GODOT_ERR_UNCONFIGURED);
-	int result = read(p_buffer, p_bytes);
+	int result = recv(socketfd, p_buffer, p_bytes, 0);
 	if (result < 0) {
 		return GODOT_ERR_FILE_CANT_READ;
 	} else if (result == 0) {
@@ -56,6 +59,7 @@ godot_error StreamPeerUnix::get_partial_data(uint8_t *p_buffer, int p_bytes, int
 }
 
 godot_error StreamPeerUnix::put_data(const uint8_t *p_data, int p_bytes) {
+	ERR_FAIL_COND_V(!is_open(), GODOT_ERR_UNCONFIGURED);
 	godot_error error = GODOT_OK;
 	int sent = 0;
 	while (error == GODOT_OK && sent < p_bytes) {
@@ -70,7 +74,7 @@ godot_error StreamPeerUnix::put_data(const uint8_t *p_data, int p_bytes) {
 godot_error StreamPeerUnix::put_partial_data(const uint8_t *p_data, int p_bytes, int *r_sent) {
 	*r_sent = 0;
 	ERR_FAIL_COND_V(!is_open(), GODOT_ERR_UNCONFIGURED);
-	int result = write(p_data, p_bytes);
+	int result = send(socketfd, p_data, p_bytes, 0);
 	if (result < 0) return GODOT_ERR_FILE_CANT_WRITE;
 	*r_sent = result;
 	return GODOT_OK;
@@ -116,14 +120,6 @@ void StreamPeerUnix::close() {
 		socketfd = -1;
 		path = String();
 	}
-}
-
-int StreamPeerUnix::read(uint8_t *p_buffer, const int p_bytes) {
-	return recv(socketfd, p_buffer, p_bytes, 0);
-}
-
-int StreamPeerUnix::write(const uint8_t *p_data, const int p_bytes) {
-	return send(socketfd, p_data, p_bytes, 0);
 }
 
 void StreamPeerUnix::set_type(const int type) {

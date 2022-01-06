@@ -60,9 +60,6 @@ public:
 	virtual godot_error put_partial_data(const uint8_t *p_data, int p_bytes, int *r_sent);
 	virtual int get_available_bytes();
 
-	virtual int read(uint8_t *p_buffer, const int p_bytes);
-	virtual int write(const uint8_t *p_buffer, const int p_bytes);
-
 	int open(const String path);
 	String get_path();
 	bool is_open();
