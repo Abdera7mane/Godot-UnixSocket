@@ -7,9 +7,9 @@ reloadable=false
 
 [entry]
 
-X11.64="res://addons/godot-unix-socket/libunixsocket.so"
-Server="res://addons/godot-unix-socket/libunixsockets.so"
-OSX.64="res://addons/godot-unix-socket/libunixsockets.dylib"
+X11.64="res://addons/godot-unix-socket/x11/libunixsocket.so"
+Server="res://addons/godot-unix-socket/x11/libunixsocket.so"
+OSX.64="res://addons/godot-unix-socket/osx/libunixsocket.dylib"
 
 [dependencies]
 
