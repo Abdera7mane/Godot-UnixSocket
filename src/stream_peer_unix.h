@@ -17,6 +17,7 @@ int _get_available_bytes(const void *);
 class StreamPeerUnix : public StreamPeerGDNative {
     GODOT_CLASS(StreamPeerUnix, StreamPeerGDNative)
 
+	bool blocking;
 
 public:
 	enum SocketType {
@@ -64,6 +65,9 @@ public:
 	String get_path();
 	bool is_open();
 	void close();
+
+	void set_blocking_mode(bool value);
+	bool is_blocking_mode_enabled();
 
 	void set_type(const int type);
 	int get_type();

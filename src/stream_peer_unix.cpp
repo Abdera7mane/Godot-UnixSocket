@@ -1,5 +1,6 @@
 #include "stream_peer_unix.h"
 
+#include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -101,6 +102,7 @@ int StreamPeerUnix::open(const String path) {
 		socketfd = -1;
 		return GODOT_ERR_CANT_CONNECT;
 	}
+	if (!blocking) fcntl(socketfd, F_SETFL, O_NONBLOCK);
 	this->path = path;
 	return GODOT_OK;
 }
@@ -120,6 +122,15 @@ void StreamPeerUnix::close() {
 		socketfd = -1;
 		path = String();
 	}
+}
+
+void StreamPeerUnix::set_blocking_mode(bool value) {
+	ERR_FAIL_COND(is_open());
+	blocking = value;
+}
+
+bool StreamPeerUnix::is_blocking_mode_enabled() {
+	return blocking;
 }
 
 void StreamPeerUnix::set_type(const int type) {
@@ -168,6 +179,13 @@ void StreamPeerUnix::_register_methods() {
         GODOT_PROPERTY_USAGE_DEFAULT, 
         GODOT_PROPERTY_HINT_ENUM, 
 		"STREAM, DGRAM, SEQPACKET"
+	);
+
+	register_property<StreamPeerUnix, bool>(
+		"blocking_mode",
+        &StreamPeerUnix::set_blocking_mode,    
+        &StreamPeerUnix::is_blocking_mode_enabled,    
+        false
 	);
 	
 	register_method("open", &StreamPeerUnix::open);
