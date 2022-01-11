@@ -4,6 +4,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <errno.h>
 
 godot_error _get_data(void *user, uint8_t *p_buffer, int p_bytes) {
 	return ((StreamPeerUnix *)user)->get_data(p_buffer, p_bytes);
@@ -32,15 +33,16 @@ void StreamPeerUnix::_init() {
 
 godot_error StreamPeerUnix::get_data(uint8_t *p_buffer, int p_bytes) {
 	ERR_FAIL_COND_V(!is_open(), GODOT_ERR_UNCONFIGURED);
+	ERR_FAIL_COND_V(p_bytes < 0, GODOT_ERR_INVALID_PARAMETER);
 	godot_error error = GODOT_OK;
-	int result = recv(socketfd, p_buffer, p_bytes, MSG_WAITALL);
+	int result = recv(socketfd, p_buffer, p_bytes, MSG_WAITALL | MSG_NOSIGNAL);
 	if (result < 0) {
 		error = GODOT_ERR_FILE_CANT_READ;
-	} else if (result == 0) {
+	} else if (result == 0 && p_bytes > 0) {
 		close();
 		error = GODOT_ERR_FILE_EOF;
 	} else if (result != p_bytes) {
-		error = GODOT_ERR_INVALID_PARAMETER;
+		error = GODOT_FAILED;
 	}
 	return error;
 }
@@ -48,10 +50,12 @@ godot_error StreamPeerUnix::get_data(uint8_t *p_buffer, int p_bytes) {
 godot_error StreamPeerUnix::get_partial_data(uint8_t *p_buffer, int p_bytes, int *r_received) {
 	*r_received = 0;
 	ERR_FAIL_COND_V(!is_open(), GODOT_ERR_UNCONFIGURED);
-	int result = recv(socketfd, p_buffer, p_bytes, 0);
+	ERR_FAIL_COND_V(p_bytes < 0, GODOT_ERR_INVALID_PARAMETER);
+	int result = recv(socketfd, p_buffer, p_bytes, MSG_NOSIGNAL);
 	if (result < 0) {
+		if (errno == EBADF || errno == EPIPE) close();
 		return GODOT_ERR_FILE_CANT_READ;
-	} else if (result == 0) {
+	} else if (result == 0 && p_bytes > 0) {
 		close();
 		return GODOT_ERR_FILE_EOF;
 	}
@@ -75,8 +79,15 @@ godot_error StreamPeerUnix::put_data(const uint8_t *p_data, int p_bytes) {
 godot_error StreamPeerUnix::put_partial_data(const uint8_t *p_data, int p_bytes, int *r_sent) {
 	*r_sent = 0;
 	ERR_FAIL_COND_V(!is_open(), GODOT_ERR_UNCONFIGURED);
-	int result = send(socketfd, p_data, p_bytes, 0);
-	if (result < 0) return GODOT_ERR_FILE_CANT_WRITE;
+	int result = send(socketfd, p_data, p_bytes, MSG_NOSIGNAL);
+	if (result < 0) {
+		if (errno == EBADF || errno == EPIPE) close();
+		return GODOT_ERR_FILE_CANT_WRITE;
+	}
+	if (result == 0 && p_bytes > 0) {
+		close();
+		return GODOT_ERR_FILE_EOF;
+	}
 	*r_sent = result;
 	return GODOT_OK;
 }
