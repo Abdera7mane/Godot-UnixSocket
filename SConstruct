@@ -51,7 +51,7 @@ if platform == "osx":
         flags.extend(["-arch", env["macos_arch"]])
     
     env.Append(LINKFLAGS=flags)
-    env.Append(CCFLAGS=flags)
+    env.Append(CCFLAGS=flags + ["-std=c++14"])
     
 elif platform == "linux":
     if target in ("debug", "d"):
