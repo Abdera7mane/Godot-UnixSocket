@@ -101,7 +101,8 @@ int StreamPeerUnix::get_available_bytes() {
 
 int StreamPeerUnix::open(const String path) {
 	ERR_FAIL_COND_V(is_open(), GODOT_ERR_ALREADY_IN_USE);
-	socketfd = socket(AF_UNIX, get_socket_type(type), 0);
+
+	socketfd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (socketfd < 0) {
 		return GODOT_ERR_CANT_CREATE;
 	}
@@ -109,12 +110,16 @@ int StreamPeerUnix::open(const String path) {
 	char *path_string = path.alloc_c_string();
 	server_address.sun_family = AF_UNIX;
 	strcpy(server_address.sun_path, path_string);
+
 	if(::connect(socketfd, (struct sockaddr *)&server_address, sizeof(server_address)) < 0) {
 		socketfd = -1;
 		return GODOT_ERR_CANT_CONNECT;
 	}
+
 	if (!blocking) fcntl(socketfd, F_SETFL, O_NONBLOCK);
+
 	this->path = path;
+
 	return GODOT_OK;
 }
 
@@ -144,54 +149,11 @@ bool StreamPeerUnix::is_blocking_mode_enabled() {
 	return blocking;
 }
 
-void StreamPeerUnix::set_type(const int type) {
-	ERR_FAIL_COND(is_open());
-	switch(type) {
-		case STREAM:
-		case DGRAM:
-		case SEQPACKET:
-			this->type = static_cast<SocketType>(type);
-			return;
-	}
-	ERR_PRINT("'type' can only take values from 0 to 2");
-}
-
-int StreamPeerUnix::get_type() {
-	return type;
-}
-
-int StreamPeerUnix::get_socket_type(const SocketType type) {
-	int value = SOCK_STREAM;
-	switch(type) {
-		case STREAM:
-			value = SOCK_STREAM;
-			break;
-		case DGRAM:
-			value = SOCK_DGRAM;
-			break;
-		case SEQPACKET:
-			value = SOCK_SEQPACKET;
-			break;
-	}
-	return value;
-}
-
 StreamPeerUnix::~StreamPeerUnix() {
     close();
 }
 
 void StreamPeerUnix::_register_methods() {
-	register_property<StreamPeerUnix, int>(
-		"type",
-        &StreamPeerUnix::set_type,    
-        &StreamPeerUnix::get_type,    
-        SocketType::STREAM,
-        GODOT_METHOD_RPC_MODE_DISABLED, 
-        GODOT_PROPERTY_USAGE_DEFAULT, 
-        GODOT_PROPERTY_HINT_ENUM, 
-		"STREAM, DGRAM, SEQPACKET"
-	);
-
 	register_property<StreamPeerUnix, bool>(
 		"blocking_mode",
         &StreamPeerUnix::set_blocking_mode,    

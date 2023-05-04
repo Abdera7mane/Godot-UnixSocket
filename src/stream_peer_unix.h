@@ -19,13 +19,6 @@ class StreamPeerUnix : public StreamPeerGDNative {
 
 	bool blocking;
 
-public:
-	enum SocketType {
-		STREAM,
-		DGRAM,
-		SEQPACKET
-	};
-
 protected:
 	int socketfd = -1;
 	String path;
@@ -45,12 +38,7 @@ protected:
 
 	struct sockaddr_un server_address;
 
-	int get_socket_type(const SocketType type);
-
-
 public:
-	SocketType type;
-
 	void _init();
 	
 	static void _register_methods();
@@ -68,9 +56,6 @@ public:
 
 	void set_blocking_mode(bool value);
 	bool is_blocking_mode_enabled();
-
-	void set_type(const int type);
-	int get_type();
 
 	~StreamPeerUnix();
 	

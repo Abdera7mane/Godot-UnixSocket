@@ -19,20 +19,19 @@
 
 ### class StreamPeerUnix
 **Inherits:**
-[StreamPeerGDNative](https://docs.godotengine.org/en/stable/classes/class_streampeergdnative.html#class-streampeergdnative) <
-[StreamPeer](https://docs.godotengine.org/en/stable/classes/class_streampeer.html)
-
-### properties
-
-| type | name | default | description                                                        |
-|------|------|---------|--------------------------------------------------------------------|
-| int  | type | 0       | socket type, ( 0: SOCK_STREAM, 1: SOCK_DGRAM, 2: SOCK_SEQPACKET )  |
+[StreamPeerGDNative](https://docs.godotengine.org/en/3.6/classes/class_streampeergdnative.html) <
+[StreamPeer](https://docs.godotengine.org/en/3.6/classes/class_streampeer.html)
 
 ### methods
 
-| return | definition         | description                                                        |
-|--------|--------------------|--------------------------------------------------------------------|
-| int    | open(path: String) | Opens a connection to a socket at `path` and returns an error code |
-| bool   | is_open()          | Checks if the stream peer is connected                             |
-| String | get_path()         | Gets the current connected socket path                             |
-| void   | close()            | Closes the socket connection                                       |
+| return                 | definition           | description                                                        |
+|------------------------|----------------------|--------------------------------------------------------------------|
+| [int][class_int]       | `open(path: String)` | Opens a connection to a socket at `path` and returns an error code |
+| [bool][class_bool]     | `is_open()`          | Checks if the stream peer is connected                             |
+| [String][class_string] | `get_path()`         | Gets the current connected socket path                             |
+| void                   | `close()`            | Closes the socket connection                                       |
+
+[class_int]: https://docs.godotengine.org/en/3.6/classes/class_int.html
+[class_bool]: https://docs.godotengine.org/en/3.6/classes/class_bool.html
+[class_string]: https://docs.godotengine.org/en/3.6/classes/class_string.html
+
