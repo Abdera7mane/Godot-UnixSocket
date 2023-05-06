@@ -1,0 +1,55 @@
+name: Draft new release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+  release:
+    name: Create release draft
+    needs: [build]
+    runs-on: ubuntu-latest
+    env:
+      package: godot-unix-socket-${{ github.ref_name }}.zip
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: bin
+
+      - name: Generate addon files
+        shell: bash
+        run: |
+          DIR=addons/unix-socket
+
+          mkdir -p $DIR
+          cp -r bin/*/* $DIR
+
+          cat <<EOF > $DIR/lib.gdextension
+          [configuration]
+
+          entry_symbol = "unixsocket_library_init"
+
+          [libraries]
+
+          linux.debug.x86_64 = "$DIR/libunixsocket.linux.template_debug.x86_64.so"
+          linux.release.x86_64 = "$DIR/libunixsocket.linux.template_release.x86_64.so"
+          macos.debug = "$DIR/libunixsocket.macos.template_debug.framework"
+          macos.release = "$DIR/libunixsocket.macos.tempalte_release.framework"
+          EOF
+
+          zip $package -r $DIR
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          name: Godot UNIX Socket ${{ github.ref_name }}
+          files: |
+            ${{ env.package }}
+

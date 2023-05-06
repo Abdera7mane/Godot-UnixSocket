@@ -1,0 +1,19 @@
+name: scons
+description: Install SCons
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install SCons for Linux
+      if: runner.os == 'linux'
+      run: python -m pip install scons
+      shell: bash
+    - name: Install SCons for MacOS
+      if: runner.os == 'macos'
+      run: brew install scons
+      shell: bash
+    - name: Print versions
+      run: |
+        python --version
+        scons --version
+      shell: bash
