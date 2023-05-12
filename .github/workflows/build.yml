@@ -1,88 +1,36 @@
 name: Build CI
 
-on: [push, pull_request, workflow_dispatch]
+on: [push, pull_request, workflow_dispatch, workflow_call]
 
 jobs:
-  linux-debug:
-    name: Linux debug build
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        target: [template_debug, template_release]
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: macos-latest
+            platform: macos
+          - target: template_debug
+            target-type: debug
+          - target: template_release
+            target-type: release
+    name: ${{ matrix.platform }} ${{ matrix.target-type }} build
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Install SCons
-        run: |
-          python -m pip install scons
-          python --version
-          scons --version
+        uses: ./.github/composite/scons
       - name: Build library
-        run: ./build_linux.sh debug
+        run: scons platform=${{ matrix.platform }} target=${{ matrix.target }}
       - name: Upload artificat
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: linux-debug-${{ github.sha }}
+          name: ${{ matrix.platform }}-${{ matrix.target-type }}-${{ github.sha }}
           if-no-files-found: error
           path: bin/
 
-  linux-release:
-    name: Linux release build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - name: Install SCons
-        run: |
-          python -m pip install scons
-          python --version
-          scons --version
-      - name: Build library
-        run: ./build_linux.sh release
-      - name: Upload artificat
-        uses: actions/upload-artifact@v2
-        with:
-          name: linux-release-${{ github.sha }}
-          if-no-files-found: error
-          path: bin/
-
-  macos-debug:
-    name: MacOS debug build
-    runs-on: macos-11
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - name: Install SCons
-        run: |
-          brew install scons
-          python --version
-          scons --version
-      - name: Build library
-        run: ./build_mac.sh debug
-      - name: Upload artificat
-        uses: actions/upload-artifact@v2
-        with:
-          name: macos-debug-${{ github.sha }}
-          if-no-files-found: error
-          path: bin/
-
-  macos-release:
-    name: MacOS release build
-    runs-on: macos-11
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - name: Install SCons
-        run: |
-          brew install scons
-          python --version
-          scons --version
-      - name: Build library
-        run: ./build_mac.sh release
-      - name: Upload artificat
-        uses: actions/upload-artifact@v2
-        with:
-          name: macos-release-${{ github.sha }}
-          if-no-files-found: error
-          path: bin/

@@ -1,96 +1,38 @@
 #!python
-import os
 
-opts = Variables([], ARGUMENTS)
+import api_generator
 
-# Define the relative path to the Godot headers.
-godot_headers_path = "godot-cpp/godot-headers"
-godot_bindings_path = "godot-cpp"
+ARGUMENTS["custom_api_file"] = "./custom_api.json"
 
-# Gets the standard flags CC, CCX, etc.
-env = DefaultEnvironment()
+env = SConscript("godot-cpp/SConstruct")
+env.Tool("compilation_db")
 
-# Define our options. Use future-proofed names for platforms.
-platform_array = ["", "linuxbsd", "macos", "x11", "linux", "osx"]
-opts.Add(EnumVariable("target", "Compilation target", "debug", ["d", "debug", "r", "release"]))
-opts.Add(EnumVariable("macos_arch", "Target macOS architecture", "universal", ["universal", "x86_64", "arm64"]))
-opts.Add(EnumVariable("platform", "Compilation platform", "", platform_array))
-opts.Add(EnumVariable("p", "Alias for 'platform'", "", platform_array))
-opts.Add(BoolVariable("use_llvm", "Use the LLVM / Clang compiler", "no"))
-opts.Add(PathVariable("target_path", "The path where the lib is installed.", "bin/"))
-opts.Add(PathVariable("target_name", "The library name.", "unixsocket", PathVariable.PathAccept))
+compile_commands = env.CompilationDatabase("compile_commands.json")
+Alias('compile_commands', compile_commands)
 
-# Updates the environment with the option variables.
-opts.Update(env)
+library_name = "libunixsocket"
 
-# Process platform arguments. Here we use the same names as GDNative.
-if env["p"] != "":
-    env["platform"] = env["p"]
+platform = env["platform"]
 
-if env["platform"] == "macos":
-    env["platform"] = "osx"
-elif env["platform"] in ("x11", "linuxbsd"):
-    env["platform"] = "linux"
-
-if env["platform"] == "":
+if not platform in ("linux", "macos"):
     print("No valid target platform selected.")
     quit()
 
-platform = env["platform"]
-target = env["target"]
+env.Append(CPPPATH=["src"])
 
-# Check our platform specifics.
-if platform == "osx":
-    if not env["use_llvm"]:
-        env["use_llvm"] = "yes"
+sources = ["src/lib.cpp", "src/stream_peer_unix.cpp"]
 
-    flags = list(("-g", "-O2") if target in ("debug", "d") else ("-g", "-O3"))
-    if env["macos_arch"] == "universal":
-        flags.extend(["-arch", "x86_64", "-arch", "arm64"])
-    else:
-        flags.extend(["-arch", env["macos_arch"]])
-    
-    env.Append(LINKFLAGS=flags)
-    env.Append(CCFLAGS=flags + ["-std=c++14"])
-    
-elif platform == "linux":
-    if target in ("debug", "d"):
-        env.Append(CCFLAGS=["-fPIC", "-g3", "-Og"])
-    else:
-        env.Append(CCFLAGS=["-fPIC", "-g", "-O3"])
+target_name = env["target"]
 
-if env["use_llvm"] == "yes":
-    env["CC"] = "clang"
-    env["CXX"] = "clang++"
+if target_name != "editor":
+    target_name = "release" if target_name == "template_release" else "debug"
 
-SConscript("godot-cpp/SConstruct")
+arch = env["arch"]
+suffix = f".{platform}.{target_name}.{arch}"
 
+shlib_suffix = env["SHLIBSUFFIX"]
+library = env.SharedLibrary(f"bin/{library_name}{suffix}{shlib_suffix}",
+                            source=sources)
 
-def add_sources(sources, dir):
-    for f in os.listdir(dir):
-        if f.endswith(".cpp"):
-            sources.append(dir + "/" + f)
-
-
-env.Append(
-    CPPPATH=[
-        godot_headers_path,
-        godot_bindings_path + "/include",
-        godot_bindings_path + "/include/gen/",
-        godot_bindings_path + "/include/core/",
-    ]
-)
-
-env.Append(
-    LIBS=[
-        env.File(os.path.join("godot-cpp/bin", "libgodot-cpp.%s.%s.64%s" % (platform, env["target"], env["LIBSUFFIX"])))
-    ]
-)
-
-env.Append(LIBPATH=[godot_bindings_path + "/bin/"])
-
-sources = []
-add_sources(sources, "src")
-
-library = env.SharedLibrary(target=env["target_path"] + "/" + platform + "/" + env["target_name"], source=sources)
 Default(library)
+

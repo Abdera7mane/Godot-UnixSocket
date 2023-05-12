@@ -1,16 +1,18 @@
-#include <Godot.hpp>
+#include <gdextension_interface.h>
+#include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/core/defs.hpp>
 
 #include "stream_peer_unix.h"
 
-extern "C" void GDN_EXPORT godot_gdnative_init(godot_gdnative_init_options *o) {
-	godot::Godot::gdnative_init(o);
-}
+extern "C" GDExtensionBool GDE_EXPORT unixsocket_library_init(const GDExtensionInterface *p_interface, GDExtensionClassLibraryPtr p_library, GDExtensionInitialization *r_initialization) {
+  godot::GDExtensionBinding::InitObject init_object(p_interface, p_library,
+                                                    r_initialization);
 
-extern "C" void GDN_EXPORT godot_gdnative_terminate(godot_gdnative_terminate_options *o) {
-	godot::Godot::gdnative_terminate(o);
-}
+  const auto min_level = godot::MODULE_INITIALIZATION_LEVEL_CORE;
+  init_object.set_minimum_library_initialization_level(min_level);
+  init_object.register_initializer([](auto level) {
+    if (level == min_level) godot::ClassDB::register_class<StreamPeerUnix>();
+  });
 
-extern "C" void GDN_EXPORT godot_nativescript_init(void *handle) {
-	godot::Godot::nativescript_init(handle);
-	godot::register_tool_class<StreamPeerUnix>();
+  return init_object.init();
 }

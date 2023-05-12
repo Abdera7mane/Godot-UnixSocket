@@ -2,7 +2,7 @@
 *.dblite
 
 # Godot Serialisations
-api.json
+custom_api.json
 
 # Visual Studio Cache
 .vs/
@@ -28,6 +28,5 @@ build/
 *.os
 *.out
 
-# Replit
-.replit
-.cquery
+.ccls-cache
+compile_commands.json
