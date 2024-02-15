@@ -1,3 +1,6 @@
+__pycache__/
+.cache/
+
 # SConstruct db
 *.dblite
 
