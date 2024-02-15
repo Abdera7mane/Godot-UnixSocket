@@ -13,8 +13,16 @@ expose = {
     "RefCounted",
     "FileAccess",
     "WorkerThreadPool",
-    "XMLParser"
+    "XMLParser",
+    "ClassDB",
 }
+
+singletons = [
+    {
+        "name": "ClassDB",
+        "type": "ClassDB",
+    },
+]
 
 api = {}
 with open("godot-cpp/gdextension/extension_api.json") as file:
@@ -30,7 +38,7 @@ while len(expose) > 0:
         expose.remove(class_name)
 
 api["classes"] = classes
-api["singletons"] = []
+api["singletons"] = singletons
 
 with open("custom_api.json", 'w') as file:
     json.dump(api, file, indent='\t')

@@ -4,8 +4,11 @@
 
 #include "stream_peer_unix.h"
 
-extern "C" GDExtensionBool GDE_EXPORT unixsocket_library_init(const GDExtensionInterface *p_interface, GDExtensionClassLibraryPtr p_library, GDExtensionInitialization *r_initialization) {
-  godot::GDExtensionBinding::InitObject init_object(p_interface, p_library,
+extern "C" GDExtensionBool GDE_EXPORT
+unixsocket_library_init(GDExtensionInterfaceGetProcAddress p_proc_address,
+                        GDExtensionClassLibraryPtr p_library,
+                        GDExtensionInitialization *r_initialization) {
+  godot::GDExtensionBinding::InitObject init_object(p_proc_address, p_library,
                                                     r_initialization);
 
   const auto min_level = godot::MODULE_INITIALIZATION_LEVEL_CORE;
