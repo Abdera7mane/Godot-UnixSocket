@@ -28,7 +28,7 @@ jobs:
           DIR=addons/unix-socket
 
           mkdir -p $DIR
-          cp -r bin/* $DIR
+          cp -r bin/*/* $DIR
 
           cat <<EOF > $DIR/lib.gdextension
           [configuration]
